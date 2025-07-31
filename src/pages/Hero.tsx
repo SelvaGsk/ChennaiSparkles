@@ -12,7 +12,7 @@ const Hero = () => {
     <>
       <Helmet>
         <title>
-          Chennai Sparkle Crackers | Buy Quality Crackers Online from Sivakasi
+          Chennai Sparkle Crackers | Online Crackers Shop | Sivakasi Crackers Online Shopping 2025 | Best Sivakasi Crackers Price List 2025|
         </title>
         <meta
           name="description"
@@ -31,7 +31,7 @@ const Hero = () => {
           content="Get the best deals on crackers directly from Sivakasi – India's Crackers City. Safe, certified, and budget-friendly fireworks."
         />
         <meta property="og:image" content="/meta/home-banner.jpg" />
-        <meta property="og:url" content="https://ChennaiSparkleCrackers.com/" />
+        <meta property="og:url" content="https://chennaisparklecrackers.in/" />
       </Helmet>
       <div className="flex flex-col min-h-screen">
         <section className="flex-1">

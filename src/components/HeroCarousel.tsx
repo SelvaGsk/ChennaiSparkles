@@ -90,7 +90,7 @@ const HeroCarousel = () => {
                 {/* Shop Now Button - Bottom Right */}
                 <div className="flex justify-end">
                   <a href="/shop">
-                    <Button className="bg-amber-500 text-white hover:bg-amber-600 shadow-lg text-sm md:text-base px-4 py-2 rounded-full">
+                    <Button className="bg-gradient-to-r from-yellow-400 to-red-500 text-white hover:bg-amber-400 shadow-lg text-sm md:text-base px-4 py-2 rounded-full">
                       Shop Now
                     </Button>
                   </a>

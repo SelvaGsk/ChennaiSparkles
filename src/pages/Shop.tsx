@@ -145,14 +145,14 @@ export const ProductTableRow = React.memo(({ product }) => {
                     />
                     <button
                       onClick={() => updateCartQty(product.productId, "inc")}
-                      className="px-2 py-1 bg-amber-600 text-white rounded text-xs"
+                      className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-red-500 text-white rounded text-xs"
                     >
                       +
                     </button>
                   </div>
                 ) : (
                   <Button
-                    className="bg-amber-600 text-white text-xs px-3 py-1"
+                    className="bg-gradient-to-r from-yellow-400 to-red-500 text-white text-xs px-3 py-1"
                     onClick={() => toggleCart(product)}
                   >
                     Add
@@ -172,7 +172,7 @@ export const ProductTableRow = React.memo(({ product }) => {
       <tr className="hidden sm:table-row border-b relative">
         <td className="p-2 w-[60px] lg:w-[90px] relative">
           {!product.active && (
-            <div className="absolute top-1 left-1 bg-amber-600 text-white text-[10px] font-semibold px-2 py-[2px] rounded z-10">
+            <div className="absolute top-1 left-1 bg-gradient-to-r from-yellow-400 to-red-500 text-white text-[10px] font-semibold px-2 py-[2px] rounded z-10">
               Out of Stock
             </div>
           )}
@@ -223,14 +223,14 @@ export const ProductTableRow = React.memo(({ product }) => {
                 />
                 <button
                   onClick={() => updateCartQty(product.productId, "inc")}
-                  className="px-2 py-1 bg-amber-600 text-white rounded"
+                  className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-red-500 text-white rounded"
                 >
                   +
                 </button>
               </div>
             ) : (
               <Button
-                className="bg-amber-600 text-white text-sm"
+                className="bg-gradient-to-r from-yellow-400 to-red-500 text-white text-sm"
                 onClick={() => toggleCart(product)}
               >
                 Add

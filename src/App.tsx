@@ -19,6 +19,7 @@ import RegisterDialog from "./components/RegisterDialog"
 import { FaWhatsapp } from "react-icons/fa6"
 import Admin from "./pages/Admin"
 import ProductAdministration from "./pages/ProductAdministration"
+import CategoryAdministration from "./pages/CategoriesAdmin"
 import Termsandconditions from "./pages/TermsAndConditions"
 import { useNavigate } from "react-router-dom";
 import { FaShoppingBag, FaShoppingCart } from 'react-icons/fa';
@@ -26,6 +27,8 @@ import { ShoppingBag, ShoppingBasket, ShoppingBasketIcon, ShoppingCart } from "l
 import { CiShoppingCart } from "react-icons/ci"
 import { FiShoppingCart } from "react-icons/fi"
 import { useLocation } from "react-router-dom";
+import Unauthorized from "./pages/Unauthorized"; 
+import RequireAdmin from './components/RequireAdmin';
 
 const App = () => {
   const { setting, products, cartItems, TAGS, user, getUser, setdbUser, userloading } = useFirebase();
@@ -41,7 +44,7 @@ const App = () => {
 
   // In your layout or App.tsx where floating icons are rendered
   const location = useLocation();
-  const hideFloatingButtons = location.pathname === "/shop" || location.pathname === "/cart" || location.pathname === "/admin" || location.pathname === "/product-admin";
+  const hideFloatingButtons = location.pathname === "/shop" || location.pathname === "/cart" || location.pathname === "/admin";
   
   // 👇 Set initial position to bottom-right
   useEffect(() => {
@@ -139,8 +142,10 @@ const App = () => {
         <Route path='/wishlist' element={<WishList />} />
         <Route path='/checkout' element={<CheckOut />} />
         <Route path='/termsandconditions' element={<Termsandconditions />} />
-        <Route path='/admin' element={<Admin />} />
-        <Route path='/product-admin' element={<ProductAdministration />} />
+        <Route path='/admin' element={<RequireAdmin><Admin /></RequireAdmin>} />
+        <Route path='/product-admin' element={<RequireAdmin><ProductAdministration /> </RequireAdmin>} />
+        <Route path='/category-admin' element={<RequireAdmin> <CategoryAdministration /> </RequireAdmin>} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
       </Routes>
 
       {isNewUser && user?.email && (
@@ -169,7 +174,7 @@ const App = () => {
           ref={whatsappRef}
           onMouseDown={handleMouseDown}
           onClick={openWhatsApp}
-          className="bg-gradient-to-r from-fuchsia-600 to-cyan-600 hover:bg-green-600 text-white p-3 rounded-full shadow-lg cursor-move"
+          className="bg-gradient-to-r from-yellow-400 to-red-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg cursor-move"
         >
           <FaWhatsapp size={28} />
         </div>

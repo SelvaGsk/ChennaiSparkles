@@ -25,7 +25,7 @@ export const ProductCardComponent: React.FC<ProductCardProps> = React.memo(({ pr
        <div className="bg-white rounded-xl shadow hover:shadow-md transition p-4 flex flex-col relative">
           {/* Out of Stock Badge */}
           {!product.active && (
-            <div className="absolute top-3 left-3 bg-amber-600 text-white text-xs font-semibold px-2 py-1 rounded z-10">
+            <div className="absolute top-3 left-3 bg-gradient-to-r from-yellow-400 to-red-500 text-white text-xs font-semibold px-2 py-1 rounded z-10">
               Out of Stock
             </div>
           )}
@@ -86,14 +86,14 @@ export const ProductCardComponent: React.FC<ProductCardProps> = React.memo(({ pr
                 />
                 <button
                   onClick={() => updateCartQty(product.productId, "inc")}
-                  className="px-2 py-1 bg-amber-600 text-white rounded"
+                  className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-red-500 text-white rounded"
                 >
                   +
                 </button>
               </div>
             ) : product.active ? (
               <Button
-                className="bg-amber-600 text-white px-6 py-2 rounded-full mx-auto"
+                className="bg-gradient-to-r from-yellow-400 to-red-500 text-white px-6 py-2 rounded-full mx-auto"
                 onClick={() => toggleCart(product)}
               >
                 Add To Cart

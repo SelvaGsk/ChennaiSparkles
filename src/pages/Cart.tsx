@@ -106,7 +106,7 @@ const Cart = () => {
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => updateCartQty(item.productId, 'dec')}
-                            className="w-8 h-8 bg-red-500 hover:bg-amber-600 text-white rounded-full text-lg font-bold"
+                            className="w-8 h-8 bg-red-500 hover:bg-gradient-to-r from-yellow-400 to-red-500 text-white rounded-full text-lg font-bold"
                           >−</button>
                           <input
                             type="number"
@@ -117,7 +117,7 @@ const Cart = () => {
                           />
                           <button
                             onClick={() => updateCartQty(item.productId, 'inc')}
-                            className="w-8 h-8 bg-amber-600 hover:bg-green-600 text-white rounded-full text-lg font-bold"
+                            className="w-8 h-8 bg-gradient-to-r from-yellow-400 to-red-500 hover:bg-green-600 text-white rounded-full text-lg font-bold"
                           >+</button>
                         </div>
                       </td>

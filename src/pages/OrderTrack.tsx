@@ -195,7 +195,7 @@ const OrderTrack = () => {
                           <div
                             className={`rounded-full p-2 ${
                               completed
-                                ? "bg-amber-600 text-white"
+                                ? "bg-gradient-to-r from-yellow-400 to-red-500 text-white"
                                 : "bg-gray-200 text-gray-400"
                             }`}
                           >

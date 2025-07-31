@@ -49,7 +49,7 @@ const SubNav = () => {
         <p className="font-semibold cursor-pointer" onClick={() => navigate('/Aboutus')}>About Us</p>
         <p className="font-semibold cursor-pointer" onClick={() => navigate('/Contactus')}>Contact Us</p>
         <p className="font-semibold cursor-pointer" onClick={() => navigate('/termsandconditions')}>T&C</p>
-        <Button onClick={downloadPriceList} className="bg-amber-600 text-white">Download Price List</Button>
+        <Button onClick={downloadPriceList} className="bg-gradient-to-r from-yellow-400 to-red-500 text-white">Download Price List</Button>
 
 
         <div className="flex items-center justify-end ml-4 gap-4 flex-wrap">

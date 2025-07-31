@@ -17,7 +17,7 @@ const products = [
     title: "Amazing Flower Pots",
     offer: "90% offer",
     image: "/products/2.jpg",
-    bgColor: "bg-amber-600",
+    bgColor: "bg-gradient-to-r from-yellow-400 to-red-500",
   },
   {
     title: "Blasting Bombs",
@@ -82,7 +82,7 @@ export default function ProductCarousel() {
                 <h2 className="text-lg font-semibold">{product.title}</h2>
                 <p className="text-green-300 text-lg mt-2">{product.offer}</p>
                 <a href="/shop">
-                  <button className="mt-4 cursor-pointer bg-amber-600 text-white px-4 py-2 rounded font-semibold shadow">
+                  <button className="mt-4 cursor-pointer bg-gradient-to-r from-yellow-400 to-red-500 text-white px-4 py-2 rounded font-semibold shadow">
                     Shop Now
                   </button>
                 </a>

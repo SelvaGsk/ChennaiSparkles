@@ -42,10 +42,10 @@ const ProductCard = React.memo(({ product,handleAddProduct }) => {
               onChange={(e) => updateCartQty(product.productId, parseInt(e.target.value))}
               className="w-16 text-center border rounded px-2 py-1"
             />
-            <button onClick={() => updateCartQty(product.productId, "inc")} className="px-2 py-1 bg-amber-600 text-white rounded">+</button>
+            <button onClick={() => updateCartQty(product.productId, "inc")} className="px-2 py-1 bg-gradient-to-r from-yellow-400 to-red-500 text-white rounded">+</button>
           </div>
         ) : (
-          <Button className="bg-amber-600 text-white px-6 py-2 rounded-full mx-auto" onClick={() => toggleCart(product)}>
+          <Button className="bg-gradient-to-r from-yellow-400 to-red-500 text-white px-6 py-2 rounded-full mx-auto" onClick={() => toggleCart(product)}>
             Add To Cart
           </Button>
         )}

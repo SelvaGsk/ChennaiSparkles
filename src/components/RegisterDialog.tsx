@@ -184,7 +184,7 @@ const RegisterDialog = ({settoggle,toggle}) => {
 
         {/* Submit */}
         <div className="text-center">
-          <Button type="submit" className="bg-amber-600 text-white px-6 py-2 rounded hover:bg-green-400" disabled={loading}>
+          <Button type="submit" className="bg-gradient-to-r from-yellow-400 to-red-500 text-white px-6 py-2 rounded hover:bg-green-400" disabled={loading}>
             {loading ? (
               <div className="animate-spin">
                 <img src="/loader2.svg" className="w-3 h-3" />

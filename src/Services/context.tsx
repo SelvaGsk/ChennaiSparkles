@@ -17,18 +17,11 @@ import {
 } from "firebase/auth";
 import { auth, provider, database } from "./Firebase.config.js";
 import toast from "react-hot-toast";
-import {
-  get,
-  onValue,
-  ref,
-  remove,
-  set,
-  push 
-} from "firebase/database";
+import { get, onValue, ref, remove, set, push } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { getFunctions, httpsCallable } from "firebase/functions";
 import { app } from "./firebase.config.js";
-import OrderDetailPrint  from "@/components/OrderDetailPrint";
+import OrderDetailPrint from "@/components/OrderDetailPrint";
 import { renderToStaticMarkup } from "react-dom/server";
 
 // ---- Interface ----
@@ -37,12 +30,15 @@ interface FirebaseContextType {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   gooleSignIn: () => Promise<void>;
-  setting:any;
+  setting: any;
   signUp: (data: any) => Promise<void>;
   toggleWishList: (productId: string) => Promise<void>;
   toggleCart: (product: any) => Promise<void>;
-  GsignUp:() => Promise<void>;
-  updateCartQty: (productId: string, type: "inc" | "dec" | number) => Promise<void>;
+  GsignUp: () => Promise<void>;
+  updateCartQty: (
+    productId: string,
+    type: "inc" | "dec" | number
+  ) => Promise<void>;
   placeOrder: (
     billProductList: any[],
     packingChargeAmount: number,
@@ -55,21 +51,20 @@ interface FirebaseContextType {
   getBannerUrls: () => Promise<any>;
   getUser: () => Promise<any>;
   getOrders: () => Promise<any>;
-  getupdateCustomerOrders:(uid:string,orderid:string)=>Promise<void>;
-  products:any,
+  getupdateCustomerOrders: (uid: string, orderid: string) => Promise<void>;
+  products: any;
   cartItems: any;
   wishlistIds: any[];
   searchTerm: string;
-  TAGS:any;
-  loading:boolean;
-  pdfLoading :boolean;
-  dbuser:any;
-  userloading:any;
+  TAGS: any;
+  loading: boolean;
+  pdfLoading: boolean;
+  dbuser: any;
+  userloading: any;
   setdbUser: React.Dispatch<React.SetStateAction<any>>;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
-  Categories:any;
+  Categories: any;
 }
-
 
 // ---- Create Context ----
 const FirebaseContext = createContext<FirebaseContextType | undefined>(
@@ -89,28 +84,22 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
   const [cartItems, setCartItems] = useState<any>({});
   const [searchTerm, setSearchTerm] = useState("");
   const [products, setProducts] = useState([]);
-  const [setting,setSetting]=useState();
-  const [TAGS,setTags]=useState();
-  const [Categories,setCategories]=useState();
+  const [setting, setSetting] = useState();
+  const [TAGS, setTags] = useState();
+  const [Categories, setCategories] = useState();
   const [loading, setLoading] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [dbuser, setdbUser] = useState(null);
 
   const [userloading, setuserLoading] = useState(true);
- 
-
 
   const navigate = useNavigate();
 
   useEffect(() => {
-  
-    const unsubscribe = onAuthStateChanged(auth, async(firebaseUser) => {
-        
-     
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       setuserLoading(false);
     getBannerUrls();
-
     });
     return () => unsubscribe();
   }, [user]);
@@ -157,11 +146,10 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
       const data = snapshot.val();
      
         setTags(data);
-      
     });
 
     return () => unsubscribe();
-  },[])
+  }, []);
 
   useEffect(() => {
     const CategoriesRef = ref(database, "CSC/GeneralMaster/Product Group");
@@ -179,19 +167,16 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
   
     return () => unsubscribe();
   }, []);
-
   
   const signIn = async (email: string, password: string) => {
     try {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
-
     } catch (error) {
       console.error("Error signing in:", error);
       toast.error(error.message);
-    }finally{
+    } finally {
       setLoading(false);
-
     }
   };
 
@@ -230,11 +215,10 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
         );
       }
       setLoading(false);
-
     } catch (error: any) {
       console.error("Error creating user:", error.message);
       toast.error(error.message);
-    }finally{
+    } finally {
       setLoading(false);
     }
   };
@@ -260,20 +244,14 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
           state: data.state,
         };
 
-        await set(
-          ref(database, `CSC/Customers/${user.uid}`),
-          customerData
-        );
+      await set(ref(database, `CSC/Customers/${user.uid}`), customerData);
       toast.success("Account updated successfully!");
         setLoading(false);
-      
     } catch (error: any) {
       console.error("Error creating user:", error.message);
       toast.error(error.message);
-    }
-    finally{
+    } finally {
       setLoading(false);
-
     }
   };
 
@@ -326,7 +304,10 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
       return;
     }
 
-    const productRef = ref(database, `CSC/tempCart/${user.uid}/${product.productId}`);
+    const productRef = ref(
+      database,
+      `CSC/tempCart/${user.uid}/${product.productId}`
+    );
     const snapshot = await get(productRef);
 
     if (snapshot.exists()) {
@@ -337,8 +318,6 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
     }
   };
 
- 
-
 // Allow both "inc" | "dec" or a number input
 const updateCartQty = async (
   productId: string,
@@ -346,7 +325,7 @@ const updateCartQty = async (
 ) => {
   if (!user?.uid) return;
 
-  const productRef = ref(database, `CSC/tempCart/${user.uid}/${productId}`);
+    const productRef = ref(database, `CSC/tempCart/${user.uid}/${productId}`);
   const snapshot = await get(productRef);
   // if (!snapshot.exists()) return;
 
@@ -376,7 +355,6 @@ const updateCartQty = async (
   }
 };
 
-
   const getUser = async () => {
     if (!user) return;
     const userRef = ref(database, `CSC/Customers/${user.uid}`);
@@ -386,10 +364,10 @@ const updateCartQty = async (
 
   // Sanitize phone numbers
   const sanitizePhone = (phone: string) => {
-    if (!phone) return '';
+    if (!phone) return "";
     
     // Trim and remove internal spaces
-    const trimmed = phone.trim().replace(/\s+/g, '');
+    const trimmed = phone.trim().replace(/\s+/g, "");
   
     // If starts with + and followed by digits, keep as is
     if (/^\+\d+$/.test(trimmed)) {
@@ -397,12 +375,12 @@ const updateCartQty = async (
     }
   
     // If starts with 91 and 10-digit number, add '+'
-    const digits = trimmed.replace(/\D/g, ''); // remove all non-digits
+    const digits = trimmed.replace(/\D/g, ""); // remove all non-digits
     if (digits.length === 10) {
       return `+91${digits}`;
     }
   
-    if (digits.startsWith('91') && digits.length === 12) {
+    if (digits.startsWith("91") && digits.length === 12) {
       return `+${digits}`;
     }
   
@@ -418,21 +396,35 @@ const updateCartQty = async (
     totalAmount: number
   ) => {
     const now = new Date();
-    const formattedDate = `${String(now.getDate()).padStart(2, '0')}/` +
-                      `${String(now.getMonth() + 1).padStart(2, '0')}/` +
+    const formattedDate =
+      `${String(now.getDate()).padStart(2, "0")}/` +
+      `${String(now.getMonth() + 1).padStart(2, "0")}/` +
                       `${now.getFullYear()} ` +
-                      `${String(now.getHours()).padStart(2, '0')}:` +
-                      `${String(now.getMinutes()).padStart(2, '0')}:` +
-                      `${String(now.getSeconds()).padStart(2, '0')}`;
+      `${String(now.getHours()).padStart(2, "0")}:` +
+      `${String(now.getMinutes()).padStart(2, "0")}:` +
+      `${String(now.getSeconds()).padStart(2, "0")}`;
   
     try {
       if (!user || !user.uid) return;
       const dbUser = await getUser();
       const orderId = Date.now().toString();
-      const orderRef = ref(database, `CSC/CustomerOrder/${user.uid}/${orderId}`);
-      if(useExistingAddress&&!dbUser?.accounterName)
-      {
-        toast.error('Please update address on profile');
+      const orderRef = ref(
+        database,
+        `CSC/CustomerOrder/${user.uid}/${orderId}`
+      );
+
+      console.log(dbUser);
+
+      if (useExistingAddress && !dbUser?.accounterName) {
+        toast.error("Please update address on profile");
+        return;
+      }
+      if (useExistingAddress && !dbUser?.address) {
+        toast.error("Please update address on profile");
+        return;
+      }
+      if (useExistingAddress && !dbUser?.mobileNo) {
+        toast.error("Please update Mobile number on profile");
         return;
       }
        
@@ -440,7 +432,7 @@ const updateCartQty = async (
 
       const orderData = {
         billNo: orderId,
-        orderNo:orderId,
+        orderNo: orderId,
         billProductList: billProductList || [],
         closed: false,
         collection: 0,
@@ -466,6 +458,7 @@ const updateCartQty = async (
           delivered: "false",
           orderPlaced: "false",
           payment: "false",
+          packed: "false",
           shipped: "false",
         },
         totalAmount: totalAmount,
@@ -492,38 +485,45 @@ const updateCartQty = async (
         fileName: `Order-${selectedOrder.orderId}`,
       });
       
-      const pdfUrl = result.data?.mediaUrl || '';
-      const sendMessage = httpsCallable(functions, "sendWhatsAppMessageOrderPlace");
+      const pdfUrl = result.data?.mediaUrl || "";
+      const sendMessage = httpsCallable(
+        functions,
+        "sendWhatsAppMessageOrderPlace"
+      );
 
       // Prepare values
       const totalItems = selectedOrder?.billProductList?.length || 0;
       const finalAmount = selectedOrder?.totalAmount || 0;
       const companyName = setting[0]?.CompanyName;
-      const trackingLink = `https://chennaisparklecrackers.com/track-order`;
+      const trackingLink = `https://chennaisparklecrackers.in/track-order`;
 
       // Get sanitized numbers
-      const customerPhone = sanitizePhone(selectedOrder.customer?.mobileNo || "");
-      const officePhone = sanitizePhone(setting[0]?.OfficeNo || "");
-      const owenerPhone = "+918072670757";
+      const customerPhone = sanitizePhone(
+        selectedOrder.customer?.mobileNo || ""
+      );
+      const officePhone = sanitizePhone(setting[0]?.CellNO || "");
+      const ownerPhone = "+919952162941";
+      const ContactNumber = `${officePhone} / ${setting[0]?.WhatsAppNumber || ""}`;
 
       // Array of phone numbers to send message to
-      const phoneNumbers = [customerPhone, owenerPhone];
+      const phoneNumbers = [customerPhone, ownerPhone];
 
       // Send message to each number
       for (const phone of phoneNumbers) {
         try {
           const whatsappResult = await sendMessage({
             phone,
-            templateId: "HX593f5f6da6ee9264229d35a3177024c3",
+            templateId: "HXdc888fa18833403460fdee5e64d13ca1",
             templateParams: {
-              1: selectedOrder.custName,                // Customer name
-              2: selectedOrder.orderId,                 // Order ID
-              3: totalItems.toString(),                 // Total items
-              4: finalAmount.toString(),                // Total amount
-              5: officePhone,                           // Contact number
-              6: trackingLink,                          // Order tracking URL
-              7: companyName,                           // Business name
+              1: selectedOrder.custName, // Customer name
+              2: selectedOrder.orderId, // Order ID
+              3: totalItems.toString(), // Total items
+              4: finalAmount.toString(), // Total amount
+              5: ContactNumber, // Contact number
+              6: trackingLink, // Order tracking URL
+              7: companyName, // Business name
               8: `Order-${selectedOrder.orderId}`,
+              9: setting[0]?.WhatsAppNumber || ""
             },
             mediaUrl: `${pdfUrl}`,
           });
@@ -547,8 +547,7 @@ const updateCartQty = async (
     } catch (error) {
       console.error("❌ Error placing order:", error);
       setPdfLoading(false);
-    }
-    finally {
+    } finally {
       setPdfLoading(false);
     }
   };
@@ -574,24 +573,21 @@ const updateCartQty = async (
     // console.log(snapshot.exists() ? snapshot.val() : null)
     return snapshot.exists() ? snapshot.val() : null;
   };
-
-  const getSingleCustomerOrder = async (uid,orderid) => {
+  const getSingleCustomerOrder = async (uid, orderid) => {
     const coRef = ref(database, `CSC/CustomerOrder/${uid}/${orderid}`);
     const snapshot = await get(coRef);
     setSetting(snapshot.exists() ? snapshot.val() : null);
     // console.log(snapshot.exists() ? snapshot.val() : null)
     return snapshot.exists() ? snapshot.val() : null;
   };
-  
-  const getupdateCustomerOrders = async (uid,orderid,data) => {
+  const getupdateCustomerOrders = async (uid, orderid, data) => {
     const coRef = ref(database, `CSC/CustomerOrder/${uid}/${orderid}`);
-     await set(coRef,data);
-     toast.success('Order Updated Successfully')
+    await set(coRef, data);
+    toast.success("Order Updated Successfully");
     // console.log(uid)
     // console.log(orderid)
 
     // console.log(data)
-
   };
 
   return (
@@ -625,8 +621,7 @@ const updateCartQty = async (
       getCustomerOrders,
       getupdateCustomerOrders,
       getSingleCustomerOrder,
-      Categories
-      
+        Categories,
       }}
     >
       {children}
@@ -641,4 +636,3 @@ export const useFirebase = () => {
   }
   return context;
 };
-

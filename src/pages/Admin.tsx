@@ -846,7 +846,7 @@ const updateOrder=async()=>{
                       <div
                         className={`h-1 ${
                           selectedOrder.statuses?.[statusSteps[index + 1].key] === "true"
-                            ? "bg-amber-600"
+                            ? "bg-gradient-to-r from-yellow-400 to-red-500"
                             : "bg-gray-300"
                         }`}
                         style={{ width: "100%" }}
@@ -858,7 +858,7 @@ const updateOrder=async()=>{
                   <div
                     className={`z-10 w-10 h-10 flex items-center justify-center rounded-full border-2 ${
                       completed
-                        ? "bg-amber-600 text-white border-green-500"
+                        ? "bg-gradient-to-r from-yellow-400 to-red-500 text-white border-green-500"
                         : "bg-white text-gray-400 border-gray-300"
                     }`}
                     onClick={() =>
