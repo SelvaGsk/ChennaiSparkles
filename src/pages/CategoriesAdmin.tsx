@@ -8,8 +8,7 @@ import {
   update,
   child,
 } from "firebase/database";
-// import { database } from "@/Services/Firebase.config";
-import { database } from "@/Services/Firebase.config";
+import { database } from "@/Services/Firebase.config.js";
 import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

@@ -29,5 +29,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "src/Services/Firebase.config.js", "functions/funUtility/WhatsAppUtility.tsx"]
+  "include": ["src", "src/Services/Firebase.config.ts", "functions/funUtility/WhatsAppUtility.tsx"]
 }
