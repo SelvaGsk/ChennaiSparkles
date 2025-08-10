@@ -28,6 +28,8 @@ const OrderTrack = () => {
   const [orders, setOrders] = useState({});
   const [selectedOrder, setSelectedOrder] = useState(null);
   const { user } = useFirebase();
+const [guestPhone, setGuestPhone] = useState("");
+const [isGuestSearch, setIsGuestSearch] = useState(false);
 
   // useEffect(() => {
   //   const fetchOrders = async () => {
@@ -37,21 +39,43 @@ const OrderTrack = () => {
   //   if (user) fetchOrders();
   // }, [user,getOrders]);
 
-  useEffect(() => {
-    if (!user) return;
-    const cartRef = ref(database, `CSC/CustomerOrder/${user.uid}`);
-    const unsubscribe = onValue(cartRef, (snapshot) => {
-      // setOrders(snapshot.exists() ? snapshot.val() : {});
+  // useEffect(() => {
+  //   if (!user) return;
+  //   const cartRef = ref(database, `CSC/CustomerOrder/${user.uid}`);
+  //   const unsubscribe = onValue(cartRef, (snapshot) => {
+  //     // setOrders(snapshot.exists() ? snapshot.val() : {});
 
-      const rawData = snapshot.exists() ? snapshot.val() : {};
-      // Filter out deleted orders
-      const filteredData = Object.fromEntries(
-        Object.entries(rawData).filter(([_, order]) => !order.delete)
-      );
-      setOrders(filteredData);
-    });
-    return () => unsubscribe();
-  }, [user]);
+  //     const rawData = snapshot.exists() ? snapshot.val() : {};
+  //     // Filter out deleted orders
+  //     const filteredData = Object.fromEntries(
+  //       Object.entries(rawData).filter(([_, order]) => !order.delete)
+  //     );
+  //     setOrders(filteredData);
+  //   });
+  //   return () => unsubscribe();
+  // }, [user]);
+  useEffect(() => {
+  let ordersRef;
+
+  if (user) {
+    ordersRef = ref(database, `CSC/CustomerOrder/${user.uid}`);
+  } else if (guestPhone.length === 10) {
+    ordersRef = ref(database, `CSC/CustomerOrder/${guestPhone}`);
+  } else {
+    return;
+  }
+
+  const unsubscribe = onValue(ordersRef, (snapshot) => {
+    const rawData = snapshot.exists() ? snapshot.val() : {};
+    const filteredData = Object.fromEntries(
+      Object.entries(rawData).filter(([_, order]) => !order.delete)
+    );
+    setOrders(filteredData);
+  });
+
+  return () => unsubscribe();
+}, [user, guestPhone]);
+
 
   return (
     <>
@@ -81,6 +105,26 @@ const OrderTrack = () => {
           <h2 className="text-3xl font-bold text-center text-gray-800">
             Track Your Order
           </h2>
+          {!user && (
+  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+    <input
+      type="text"
+      value={guestPhone}
+      onChange={(e) => setGuestPhone(e.target.value)}
+      maxLength={10}
+      placeholder="Enter your mobile number"
+      className="border border-gray-300 p-2 rounded-md shadow-sm w-full sm:w-64"
+    />
+    <button
+      className="bg-emerald-500 text-white px-4 py-2 rounded-md shadow hover:bg-emerald-600"
+      onClick={() => setIsGuestSearch(true)}
+      disabled={guestPhone.length !== 10}
+    >
+      Track Order
+    </button>
+  </div>
+)}
+
 
           {/* Order List */}
           {orders && Object.keys(orders).length === 0 ? (
@@ -140,7 +184,7 @@ const OrderTrack = () => {
               <h3 className="text-2xl font-bold text-gray-800">
                 Order Summary
               </h3>
-
+               
               {/* Order Details */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
                 <div className="bg-blue-100 p-6 rounded-xl shadow-md">
@@ -171,6 +215,10 @@ const OrderTrack = () => {
                   </p>
                 </div>
               </div>
+               <div className="flex items-center justify-center flex-col">
+                {selectedOrder.upiimage&& <><p><strong>UPI Image</strong></p>
+                 <img src={selectedOrder.upiimage} alt="image" /></>}
+               </div>
 
               {/* Status Timeline */}
               <div>

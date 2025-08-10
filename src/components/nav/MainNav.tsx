@@ -127,13 +127,41 @@ const MainNav = ({onProfileClick}) => {
           </Popover>
 
           {/* Wishlist */}
-          <div
+          {/* <div
             className="flex items-center gap-2 cursor-pointer"
-            onClick={() => navigate('/shop')}
+            onClick={() => navigate('/shop/multibrand')}
           >
             <FaShop />
             <span className="whitespace-nowrap">Shop Now</span>
-          </div>
+          </div> */}
+          <Popover>
+            <PopoverTrigger asChild>
+              <div className="flex items-center gap-2 cursor-pointer">
+                
+                  <FaShop />
+            <span className="whitespace-nowrap">Shop Now</span>
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-40">
+              
+                <div>
+                  <div
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => navigate('/shop/multibrand')}
+                  >
+                    MULTI BRAND CRACKERS
+                  </div>
+                  <div
+                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    onClick={() => navigate('/shop/standard')}
+                  >
+                    STANDARD CRACKERS
+                  </div>
+                </div>
+            
+              
+            </PopoverContent>
+          </Popover>
 
           {/* Cart */}
           <div

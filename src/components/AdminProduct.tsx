@@ -13,7 +13,7 @@ import { useFirebase } from "@/Services/context";
 import React,{ useEffect, useState } from "react";
 import { storage } from "@/Services/Firebase.config";
 import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
-import { push, ref as dbRef, set, ref, get, remove  } from "firebase/database";
+import { push, ref as dbRef, set, ref, get, remove, onValue  } from "firebase/database";
 import { database } from "@/Services/Firebase.config";
 import toast from "react-hot-toast";
 import { MdDeleteForever } from "react-icons/md";
@@ -61,9 +61,11 @@ const ProductCard = React.memo(({ product,handleAddProduct }) => {
 });
 
 const AdminProduct = ({ handleAddProduct }) => {
-  const { products, Categories } = useFirebase();
+  const { products} = useFirebase();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [Categories, setCategories] = useState();
+
 
   // const filteredProducts = products.filter((item) =>
   //   item.productName?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,6 +77,20 @@ const AdminProduct = ({ handleAddProduct }) => {
     return matchesSearch && matchesCategory;
   });
 
+
+   useEffect(() => {
+  const CategoriesRef = ref(database, "CSC/GeneralMaster/Product Group");
+
+  const unsubscribe = onValue(CategoriesRef, (snapshot) => {
+    const data = snapshot.val();
+    const formatted = data ? Object.values(data) : [];
+    setCategories(formatted);
+  });
+
+  return () => unsubscribe();
+}, []);
+
+ 
   return (
     <Dialog>
       <DialogTrigger>
@@ -92,17 +108,18 @@ const AdminProduct = ({ handleAddProduct }) => {
             className="mb-4"
           />
            <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="border rounded-md px-4 py-2 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
-          >
-            <option value="">All Categories</option>
-            {Categories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+  className="border rounded-md px-4 py-2 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+>
+  <option value="">All Categories</option>
+  {Categories?.map((category) => (
+    <option key={category.id} value={category.generalName}>
+      {category.generalName}
+    </option>
+  ))}
+</select>
+
         </DialogHeader>
 
         {/* Scrollable filtered product list */}
@@ -245,7 +262,27 @@ export const AddProductToShop = () => {
     try {
       setLoading(true);
       const imageUrl = await handleImageUpload();
-
+     
+      if(!formData.productName)
+      {
+        toast.error("Product Name is required");
+        return;
+      }
+      if(!formData.CategoryName)
+      {
+        toast.error("Category Name required");
+        return;
+      }
+      if(!formData.beforeDiscPrice)
+      {
+        toast.error("Before Discount Price is required");
+        return;
+      }
+      if(!formData.uom)
+      {
+        toast.error("Unit is required");
+        return;
+      }
       const ProductdbId = Date.now().toString();
       const finalData = {
         ...formData,
@@ -768,19 +805,33 @@ export const EditProduct=()=>{
             className="mb-4"
           />
           }
-          {!selectedProduct&&<select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="w-full max-w-xs p-2 border border-gray-300 rounded mb-4"
-          >
-            <option value="">All Categories</option>
-            {Array.isArray(Categories) &&
-              Categories.map((category) => (
-                <option key={category} value={category}>
-                  {category}
-                </option>
-              ))}
-          </select>
+          {!selectedProduct&&
+          // <select
+          //   value={selectedCategory}
+          //   onChange={(e) => setSelectedCategory(e.target.value)}
+          //   className="w-full max-w-xs p-2 border border-gray-300 rounded mb-4"
+          // >
+          //   <option value="">All Categories</option>
+          //   {Array.isArray(Categories) &&
+          //     Categories.map((category) => (
+          //       <option key={category} value={category}>
+          //         {category}
+          //       </option>
+          //     ))}
+          // </select>
+          <select
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+  className="border rounded-md px-4 py-2 shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+>
+  <option value="">All Categories</option>
+  {Categories?.map((category) => (
+    <option key={category.id} value={category.generalName}>
+      {category.generalName}
+    </option>
+  ))}
+</select>
+
           }
         </DialogHeader>
 

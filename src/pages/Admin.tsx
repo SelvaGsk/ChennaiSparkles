@@ -738,6 +738,8 @@ const updateOrder=async()=>{
                     onChange={(e) => handleAddressChange("deliveryAddress", e.target.value)}
                   />
                 </p>
+                {selectedOrder.upiimage&& <><p><strong>UPI Image</strong></p>
+                 <img src={selectedOrder.upiimage} alt="image" /></>}
                 <div className="mt-4">
                   <label className="block font-semibold mb-1">Transport Copy Image</label>
                   <input

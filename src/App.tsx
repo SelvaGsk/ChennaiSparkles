@@ -29,12 +29,27 @@ import { FiShoppingCart } from "react-icons/fi"
 import { useLocation } from "react-router-dom";
 import Unauthorized from "./pages/Unauthorized"; 
 import RequireAdmin from './components/RequireAdmin';
+import SocialNavBar from "./components/SocialNav";
+// import Modal from './components/Modal'
+import Modal from "./components/modal";
 
 const App = () => {
   const { setting, products, cartItems, TAGS, user, getUser, setdbUser, userloading } = useFirebase();
   const [openDialog, setOpenDialog] = useState(false);
   const [isNewUser, setNewUser] = useState(false);
   const [toggle, settoggle] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  useEffect(() => {
+    const alreadyShown = sessionStorage.getItem('modal-shown');
+    if (!alreadyShown) {
+      setShowModal(true);
+      sessionStorage.setItem('modal-shown', 'true');
+    }
+  }, []);
 
   const whatsappRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -44,8 +59,10 @@ const App = () => {
 
   // In your layout or App.tsx where floating icons are rendered
   const location = useLocation();
-  const hideFloatingButtons = location.pathname === "/shop" || location.pathname === "/cart" || location.pathname === "/admin";
+  const hideFloatingButtons = location.pathname === "/shop" || location.pathname === "/cart" || location.pathname === "/admin" ||
+                              location.pathname === "/shop/multibrand" || location.pathname === "/shop/standard";
   
+                              
   // 👇 Set initial position to bottom-right
   useEffect(() => {
     setPosition({
@@ -113,7 +130,7 @@ const App = () => {
   };
 
   const openShopListView = () => {
-    navigate("/shop?view=list");
+    navigate("/shop/multibrand?view=list");
   };
 
   const openWhatsApp = () => {
@@ -128,8 +145,10 @@ const App = () => {
 
   return (
     <>
+      <Modal isOpen={showModal} onClose={handleCloseModal} />
       <MainNav onProfileClick={onProfileClick} />
       <SubNav />
+      <SocialNavBar/>
       <Routes>
         <Route path='/' element={<Hero />} />
         <Route path='/register' element={<Register />} />
@@ -137,7 +156,8 @@ const App = () => {
         <Route path='/track-order' element={<OrderTrack />} />
         <Route path='/aboutus' element={<AboutUs />} />
         <Route path='/Contactus' element={<ContactUsPage  />} />
-        <Route path='/shop' element={<Shop />} />
+        <Route path='/shop/standard' element={<Shop isStandardCrackers={true}/>} />
+        <Route path='/shop/multibrand' element={<Shop isStandardCrackers={false}/>} />
         <Route path='/cart' element={<Cart />} />
         <Route path='/wishlist' element={<WishList />} />
         <Route path='/checkout' element={<CheckOut />} />
@@ -159,7 +179,7 @@ const App = () => {
     {!hideFloatingButtons && (
       <div className="fixed z-50 bottom-6 right-6 flex flex-col items-center gap-4">
         {/* 🔵 Quick Shop Button */}
-        <div
+        {/* <div
           onClick={openShopListView}
           className="flex flex-col items-center text-center cursor-pointer"
         >
@@ -167,7 +187,7 @@ const App = () => {
             <FiShoppingCart size={22} className="text-blue-600" />
           </div>
           <span className="text-sm text-blue-600 font-semibold mt-1">Quick Shop</span>
-        </div>
+        </div> */}
 
         {/* 🟢 WhatsApp Floating Button */}
         <div

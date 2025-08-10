@@ -6,6 +6,8 @@ import ProductCarousel from "@/components/ProducCarousel";
 import Footer from "@/components/Footer";
 import { Helmet } from "react-helmet-async";
 import { TagProductSection } from "@/components/FeatureProducts";
+import LogoCarousel from "@/components/LogoCarousel";
+import SwipeCards from "@/components/SwipeCards";
 
 const Hero = () => {
   return (
@@ -37,8 +39,11 @@ const Hero = () => {
         <section className="flex-1">
           <HeroCarousel />
         </section>
-        <section className="relative mt-12">
-          <FeatureCards />
+        <section className="">
+        <SwipeCards/>
+        </section>
+        <section>
+          <LogoCarousel/>
         </section>
         <section className="px-2 sm:px-4 md:px-6 lg:px-10 space-y-8">
           <TagProductSection tag="New Arrival" title="✨ New Arrivals" />
@@ -50,6 +55,9 @@ const Hero = () => {
         </section>
         <section>
           <ProductCarousel />
+        </section>
+        <section className="relative mt-12">
+          <FeatureCards />
         </section>
         <section>
           <Footer />

@@ -47,22 +47,24 @@ const HeroCarousel = () => {
     </div>
   }
   return (
-      <Carousel setApi={setApi} opts={{ loop: true }} className="w-full relative">
+    <Carousel setApi={setApi} opts={{ loop: true }} className="w-full relative">
       <CarouselContent className="flex">
         {(isMobileView ? setting[0]?.bannerImages2 : setting[0]?.bannerImages)?.map((url, index) => (
           <CarouselItem key={index}>
-            <div className="relative w-full h-[300px] md:h-[500px] group overflow-hidden">
+            <div
+               className={` relative w-full overflow-hidden rounded-md group
+               ${isMobileView ? "aspect-[3/1]" : "aspect-[3/1]"}
+             `} >
               <img
                 src={url}
                 alt={`banner-${index}`}
-                className="w-full h-full object-cover rounded-md transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102 group-hover:translate-y-[-2px]"
               />
-
               {/* Overlay Content */}
-              <div className="absolute inset-0 bg-black/30 flex flex-col justify-between p-4 md:p-6">
+                <div className="absolute inset-0 bg-black/30 flex flex-col justify-between p-4 md:p-6">
   
                 {/* Social Icons - Top Right */}
-                <div className="flex justify-end">
+                {/* <div className="flex justify-end">
                   <div className="flex gap-4 items-center">
                     {setting[0]?.YouTube && (
                       <a href={setting[0].YouTube} target="_blank" rel="noopener noreferrer">
@@ -85,16 +87,16 @@ const HeroCarousel = () => {
                       </a>
                     )}
                   </div>
-                </div>
+                </div> */}
 
                 {/* Shop Now Button - Bottom Right */}
-                <div className="flex justify-end">
-                  <a href="/shop">
+                {/* <div className="flex justify-end">
+                  <a href="/shop/multibrand">
                     <Button className="bg-gradient-to-r from-yellow-400 to-red-500 text-white hover:bg-amber-400 shadow-lg text-sm md:text-base px-4 py-2 rounded-full">
                       Shop Now
                     </Button>
                   </a>
-                </div>
+                </div> */}
               </div>
 
             </div>

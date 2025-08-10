@@ -15,14 +15,15 @@ import {
   signOut,
   User,
 } from "firebase/auth";
-import { auth, provider, database } from "./Firebase.config.js";
+import { auth, provider, database, storage } from "./Firebase.config.ts";
 import toast from "react-hot-toast";
-import { get, onValue, ref, remove, set, push } from "firebase/database";
+import { get, onValue, ref, remove, set, push, update } from "firebase/database";
 import { useNavigate } from "react-router-dom";
 import { getFunctions, httpsCallable } from "firebase/functions";
-import { app } from "./firebase.config.js";
+import { app } from "./Firebase.config.ts";
 import OrderDetailPrint from "@/components/OrderDetailPrint";
 import { renderToStaticMarkup } from "react-dom/server";
+import { getDownloadURL, uploadBytes, uploadBytesResumable ,ref as storageRef,} from "firebase/storage";
 
 // ---- Interface ----
 interface FirebaseContextType {
@@ -32,6 +33,7 @@ interface FirebaseContextType {
   gooleSignIn: () => Promise<void>;
   setting: any;
   signUp: (data: any) => Promise<void>;
+  getMultiBrandProducts:() => Promise<any>;
   toggleWishList: (productId: string) => Promise<void>;
   toggleCart: (product: any) => Promise<void>;
   GsignUp: () => Promise<void>;
@@ -52,18 +54,24 @@ interface FirebaseContextType {
   getUser: () => Promise<any>;
   getOrders: () => Promise<any>;
   getupdateCustomerOrders: (uid: string, orderid: string) => Promise<void>;
+  getSparklerProducts:()=>Promise<any>;
+  getgiftProducts:()=>Promise<any>;
+  getStandardGiftProducts:()=>Promise<any>;
   products: any;
   cartItems: any;
   wishlistIds: any[];
   searchTerm: string;
   TAGS: any;
   loading: boolean;
+  multiBrandCategories:any;
+  standardCategories:any;
   pdfLoading: boolean;
   dbuser: any;
   userloading: any;
   setdbUser: React.Dispatch<React.SetStateAction<any>>;
   setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
   Categories: any;
+  orderloading:any, setorderLoading:any,
 }
 
 // ---- Create Context ----
@@ -88,11 +96,14 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
   const [TAGS, setTags] = useState();
   const [Categories, setCategories] = useState();
   const [loading, setLoading] = useState(false);
+  const [orderloading, setorderLoading] = useState(false);
+
   const [pdfLoading, setPdfLoading] = useState(false);
   const [dbuser, setdbUser] = useState(null);
 
   const [userloading, setuserLoading] = useState(true);
-
+const [standardCategories, setStandardCategories] = useState<string[]>([]);
+const [multiBrandCategories, setMultiBrandCategories] = useState<string[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -103,25 +114,81 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
     });
     return () => unsubscribe();
   }, [user]);
+  useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    setUser(firebaseUser);
+    setuserLoading(false);
+    getBannerUrls();
+
+    // ✅ If user just signed in, sync guestCart to Firebase
+    if (firebaseUser) 
+      {
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '{}');
+
+      if (Object.keys(guestCart).length > 0) 
+        {
+        const updates = {};
+        for (const [productId, item] of Object.entries(guestCart))
+           {
+          updates[`CSC/tempCart/${firebaseUser.uid}/${productId}`] = item;
+        }
+
+        await update(ref(database), updates); // Push all to Firebase in one go
+        localStorage.removeItem('guestCart'); // ✅ Clean up guest cart
+        const guestWishlist = JSON.parse(localStorage.getItem('guestWishlist') || '[]');
+        console.log(guestWishlist);
+  if (guestWishlist.length > 0) {
+    const wishlistRef = ref(database, `CSC/Wishlist/${firebaseUser.uid}`);
+    const snapshot = await get(wishlistRef);
+    const existing = snapshot.exists() ? snapshot.val() : [];
+
+    // Merge (remove duplicates)
+    const merged = Array.from(new Set([...existing, ...guestWishlist]));
+    await set(wishlistRef, merged);
+    localStorage.removeItem('guestWishlist');
+  }
+      }
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+
+
+useEffect(() => {
+  if (!user) {
+    // ✅ For guest users: Load wishlist from localStorage
+    const guestWishlist = JSON.parse(localStorage.getItem("guestWishlist") || "[]");
+    setWishlistIds(guestWishlist);
+    return;
+  }
+
+  // ✅ For logged-in users: Sync from Firebase
+  const idsRef = ref(database, `CSC/Wishlist/${user.uid}`);
+  const unsubscribe = onValue(idsRef, (snapshot) => {
+    const data = snapshot.val();
+    setWishlistIds(data ?? []);
+  });
+
+  return () => unsubscribe();
+}, [user]);
+
 
   useEffect(() => {
-    if (!user) return;
-    const idsRef = ref(database, `CSC/Wishlist/${user.uid}`);
-    const unsubscribe = onValue(idsRef, (snapshot) => {
-      const data = snapshot.val();
-      setWishlistIds(data ? Object.values(data) : []);
-    });
-    return () => unsubscribe();
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    const cartRef = ref(database, `CSC/tempCart/${user.uid}`);
+    if (user){
+    const cartRef = ref(database, `CSC/tempCart/${user?.uid}`);
     const unsubscribe = onValue(cartRef, (snapshot) => {
       setCartItems(snapshot.exists() ? snapshot.val() : {});
     });
     return () => unsubscribe();
+  }else {
+      // Load guest cart from localStorage
+      const guestCart = JSON.parse(localStorage.getItem('guestCart') || '{}');
+      setCartItems(guestCart);
+    }
   }, [user]);
+  
+
   
  useEffect(() => {
     const productsRef = ref(database, "CSC/Products");
@@ -152,21 +219,44 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
   }, []);
 
   useEffect(() => {
-    const CategoriesRef = ref(database, "CSC/GeneralMaster/Product Group");
-    const unsubscribe = onValue(CategoriesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const categoryList = Object.values(data)
-          .map((item: any) => item?.generalName) // ✅ Corrected field
-          .filter(Boolean); // Remove undefined/null
-        setCategories(categoryList);
-      } else {
-        setCategories([]);
-      }
-    });
-  
-    return () => unsubscribe();
-  }, []);
+  const CategoriesRef = ref(database, "CSC/GeneralMaster/Product Group");
+
+  const unsubscribe = onValue(CategoriesRef, (snapshot) => {
+    const data = snapshot.val();
+    setCategories(data);
+    if (data) {
+      const standard: string[] = [];
+      const multiBrand: string[] = [];
+
+      Object.values(data).forEach((item: any) => {
+        if (!item?.generalName) return;
+
+        if (
+          item.priceListName === "STANDARD CRACKERS" ||
+          item.priceListName === ""
+        ) {
+          standard.push(item.generalName);
+        }
+
+        if (
+          item.priceListName === "ONLINE PRICE LIST" ||
+          item.priceListName === ""
+        ) {
+          multiBrand.push(item.generalName);
+        }
+      });
+
+      // Remove duplicates if "" is causing overlaps
+      setStandardCategories([...new Set(standard)]);
+      setMultiBrandCategories([...new Set(multiBrand)]);
+    } else {
+      setStandardCategories([]);
+      setMultiBrandCategories([]);
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
   
   const signIn = async (email: string, password: string) => {
     try {
@@ -280,10 +370,20 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
   };
 
   const toggleWishList = async (productId: string) => {
-    if (!user) {
-      navigate("/login");
-      return;
+     if (!user) {
+    // Guest logic — update localStorage
+    let guestWishlist = JSON.parse(localStorage.getItem('guestWishlist') || '[]');
+
+    if (guestWishlist.includes(productId)) {
+      guestWishlist = guestWishlist.filter((id: string) => id !== productId);
+    } else {
+      guestWishlist.push(productId);
     }
+
+    localStorage.setItem('guestWishlist', JSON.stringify(guestWishlist));
+    setWishlistIds(guestWishlist);
+    return;
+  }
 
     const idsRef = ref(database, `CSC/Wishlist/${user.uid}`);
     const snapshot = await get(idsRef);
@@ -299,10 +399,20 @@ export const FirebaseProvider = ({ children }: FirebaseProviderProps) => {
   };
 
   const toggleCart = async (product: any) => {
-    if (!user) {
-      navigate("/login");
-      return;
+     if (!user) {
+    // Guest logic — update localStorage
+    const cart = JSON.parse(localStorage.getItem("guestCart") || "{}");
+
+    if (cart[product.productId]) {
+      cart[product.productId].qty += 1;
+    } else {
+      cart[product.productId] = { ...product, qty: 1 };
     }
+
+    localStorage.setItem("guestCart", JSON.stringify(cart));
+    setCartItems(cart);
+    return;
+  }
 
     const productRef = ref(
       database,
@@ -323,7 +433,30 @@ const updateCartQty = async (
   productId: string,
   action: "inc" | "dec" | number
 ) => {
-  if (!user?.uid) return;
+  if (!user?.uid) {
+    // Guest logic
+    const cart = JSON.parse(localStorage.getItem("guestCart") || "{}");
+    const item = cart[productId];
+    if (!item) return;
+
+    let newQty: number;
+
+    if (typeof action === "number") {
+      newQty = action;
+    } else {
+      newQty = action === "inc" ? item.qty + 1 : item.qty - 1;
+    }
+
+    if (newQty <= 0) {
+      delete cart[productId];
+    } else {
+      cart[productId].qty = newQty;
+    }
+
+    localStorage.setItem("guestCart", JSON.stringify(cart));
+    setCartItems(cart);
+    return;
+  }
 
     const productRef = ref(database, `CSC/tempCart/${user.uid}/${productId}`);
   const snapshot = await get(productRef);
@@ -382,19 +515,54 @@ const updateCartQty = async (
   
     if (digits.startsWith("91") && digits.length === 12) {
       return `+${digits}`;
+
+
     }
   
     // Fallback: just add + before digits
     return `+${digits}`;
   };
+async function uploadOrderImage(imageFile, orderId) {
+  if (!imageFile || !orderId) throw new Error("Image file and orderId are required");
+
+  const storagesRef = storageRef(storage, 'upi/' + orderId + '/' + imageFile.name);
+  const uploadTask = uploadBytesResumable(storagesRef, imageFile);
+
+  return new Promise((resolve, reject) => {
+    uploadTask.on(
+      'state_changed',
+      (snapshot) => {
+        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+      },
+      (error) => {
+        console.error("Upload error:", error);
+        reject(error);
+      },
+      async () => {
+        try {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          console.log("✅ File available at", downloadURL);
+          resolve(downloadURL);
+        } catch (err) {
+          console.error("Error getting download URL:", err);
+          reject(err);
+        }
+      }
+    );
+  });
+}
 
   const placeOrder = async (
     billProductList: any[],
     packingChargeAmount: number,
     useExistingAddress: boolean,
     formData: any,
-    totalAmount: number
+    totalAmount: number,
+    isupi: boolean,
+    upiimage: any
   ) => {
+      setorderLoading(true);
     const now = new Date();
     const formattedDate =
       `${String(now.getDate()).padStart(2, "0")}/` +
@@ -405,16 +573,83 @@ const updateCartQty = async (
       `${String(now.getSeconds()).padStart(2, "0")}`;
   
     try {
-      if (!user || !user.uid) return;
-      const dbUser = await getUser();
+       const dbUser = await getUser();
       const orderId = Date.now().toString();
-      const orderRef = ref(
+       let orderurl;
+    if(isupi)
+    {
+       orderurl=await uploadOrderImage(upiimage,orderId);
+    }
+      if (!user || !user.uid) {
+        if(!formData.phone)
+        {
+          toast.error("Mobile number is must");
+        }
+        const guestorderRef = ref(
+        database,
+        `CSC/CustomerOrder/${formData.phone}/${orderId}`
+      );
+      
+      const orderData = {
+        billNo: orderId,
+        orderNo: orderId,
+        billProductList: billProductList || [],
+        closed: false,
+        collection: 0,
+        custCode: dbUser?.custCode || formData.phone,
+        custName:  formData.name,
+        customer: {
+  status: "Guest User",
+  importStatus: false,
+  mobileNo: formData.phone,
+  pinCode: formData.pinCode,
+  refer: formData.refer || "", // Optional
+  state: formData.state,
+  district: formData.district,
+  city: formData.city,
+  address: formData.addressLine1,
+  accounterName: formData.name,
+}
+,
+        date: formattedDate,
+ upiimage:isupi?orderurl:"",
+        deliveryAddress: useExistingAddress
+          ? dbUser?.address
+          : formData.addressLine1,
+        deliveryRemarks: "",
+        discountAmount: 0,
+        discountPerc: 0,
+        free: 0,
+        import: false,
+        lrNumber: "",
+        netAmount: 0,
+        packingCharge: packingChargeAmount,
+        paymentMethodCode: 0,
+        pending: 0,
+        refer: "",
+        statuses: {
+          delivered: "false",
+          orderPlaced: "false",
+          payment: "false",
+          packed: "false",
+          shipped: "false",
+        },
+        totalAmount: totalAmount,
+        transportName: "",
+      };
+
+      await set(guestorderRef, orderData);
+     toast.success("✅ Order placed successfully!");
+     localStorage.removeItem('guestCart');
+     setCartItems({});
+        return;
+      }
+     
+
+    const orderRef = ref(
         database,
         `CSC/CustomerOrder/${user.uid}/${orderId}`
       );
-
-      console.log(dbUser);
-
       if (useExistingAddress && !dbUser?.accounterName) {
         toast.error("Please update address on profile");
         return;
@@ -449,6 +684,7 @@ const updateCartQty = async (
         free: 0,
         import: false,
         lrNumber: "",
+        upiimage:isupi?orderurl:"",
         netAmount: 0,
         packingCharge: packingChargeAmount,
         paymentMethodCode: 0,
@@ -544,11 +780,15 @@ const updateCartQty = async (
         );
         await remove(productRef);
       }
+
+      
     } catch (error) {
       console.error("❌ Error placing order:", error);
       setPdfLoading(false);
     } finally {
       setPdfLoading(false);
+      setorderLoading(false);
+
     }
   };
 
@@ -589,7 +829,87 @@ const updateCartQty = async (
 
     // console.log(data)
   };
+  async function getSparklerProducts() {
+  const coRef = ref(database, `CSC/Products`);
+  const snapshot = await get(coRef);
 
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+
+    const sparklerProducts = Object.entries(data)
+      .filter(([_, product]) =>
+       
+        product.PriceListName === "STANDARD CRACKERS"
+      )
+      .map(([id, product]) => ({ id, ...product }));
+     console.log(sparklerProducts);
+    return sparklerProducts;
+  } else {
+    console.log("No data found.");
+    return [];
+  }
+}
+
+ async function getMultiBrandProducts() {
+  const coRef = ref(database, `CSC/Products`);
+  const snapshot = await get(coRef);
+
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+
+    const Products = Object.entries(data)
+      .filter(([_, product]) =>
+       
+        product.PriceListName === "ONLINE PRICE LIST"
+      )
+      .map(([id, product]) => ({ id, ...product }));
+    console.log(Products);
+    return Products;
+  } else {
+    console.log("No data found.");
+    return [];
+  }
+}
+async function getgiftProducts() {
+  const coRef = ref(database, `CSC/Products`);
+  const snapshot = await get(coRef);
+
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+
+    const sparklerProducts = Object.entries(data)
+      .filter(([_, product]) =>
+       
+        product.CategoryName === "COMBO ITEMS ( Multi Brand )"
+      )
+      .map(([id, product]) => ({ id, ...product }));
+     console.log(sparklerProducts);
+    return sparklerProducts;
+  } else {
+    console.log("No data found.");
+    return [];
+  }
+}
+async function getStandardGiftProducts() {
+  const coRef = ref(database, `CSC/Products`);
+  const snapshot = await get(coRef);
+
+  if (snapshot.exists()) {
+    const data = snapshot.val();
+
+    const sparklerProducts = Object.entries(data)
+      .filter(([_, product]) =>
+       
+        product.CategoryName === "COMBO ITEMS ( Standard Crackers )"
+      )
+      .map(([id, product]) => ({ id, ...product }));
+     console.log(sparklerProducts);
+    return sparklerProducts;
+  } else {
+    console.log("No data found.");
+    return [];
+  }
+}
   return (
     <FirebaseContext.Provider
       value={{
@@ -622,6 +942,14 @@ const updateCartQty = async (
       getupdateCustomerOrders,
       getSingleCustomerOrder,
         Categories,
+        getSparklerProducts,
+        getMultiBrandProducts,
+        standardCategories,
+        multiBrandCategories,
+        orderloading,
+        setorderLoading,
+        getgiftProducts,
+        getStandardGiftProducts
       }}
     >
       {children}

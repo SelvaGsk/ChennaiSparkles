@@ -6,7 +6,7 @@ import {
   FaInstagram,
   FaDribbble,
 } from "react-icons/fa6";
-import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt } from "react-icons/fa";
+import { FaMapMarkerAlt, FaEnvelope, FaPhoneAlt, FaYoutube } from "react-icons/fa";
 import { useFirebase } from "@/Services/context";
 import { FiPhoneCall } from "react-icons/fi";
 
@@ -28,7 +28,11 @@ export default function Footer() {
           <div className="space-y-2 text-sm">
             <div className="flex items-start gap-2">
               <FaMapMarkerAlt className="text-green-600 mt-1" />
-              <span>{setting[0]?.Address}</span>
+              <span><b>Chennai Address: </b>{setting[0]?.Address}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <FaMapMarkerAlt className="text-green-600 mt-1" />
+              <span><b>Sivakasi Address: </b> 2/154 4th cross street, Chinnakam patti, Sivakasi to sattur road, Sivakasi</span>
             </div>
             <div className="flex items-start gap-2">
               <FaEnvelope className="text-green-600 mt-1" />
@@ -107,11 +111,11 @@ export default function Footer() {
           </p>
           <p
             onClick={() => {
-              window.open(`${setting[0]?.instagram}`, "_blank");
+              window.open(`${setting[0]?.YouTube}`, "_blank");
             }}
             className="p-2 h-fit bg-white rounded shadow hover:bg-gray-100"
           >
-            <FaXTwitter />
+            <FaYoutube />
           </p>
           {/* <a href="#" className="p-2 h-fit bg-white rounded shadow hover:bg-gray-100"><FaDribbble /></a> */}
           <p

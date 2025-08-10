@@ -50,7 +50,11 @@ export const ProductCardComponent: React.FC<ProductCardProps> = React.memo(({ pr
           {/* Pricing + Total */}
           <div className="text-center mb-2">
             <div>
-              <span className="text-red-500 line-through">₹{product.beforeDiscPrice?.toFixed(2)}</span>
+              {product.discPerc > 0 && (
+                <span className="text-red-500 line-through">
+                  ₹{product.beforeDiscPrice?.toFixed(2)}
+                </span>
+              )}
               <span className="text-emerald-600 font-bold ml-2">₹{product.salesPrice?.toFixed(2)}</span>
             </div>
 

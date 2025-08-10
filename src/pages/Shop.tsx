@@ -105,9 +105,11 @@ export const ProductTableRow = React.memo(({ product }) => {
               </p>
 
               <div className="flex gap-1 text-[10px] mt-[2px] text-left items-baseline">
-                <span className="text-red-500 line-through">
-                  ₹{product.beforeDiscPrice?.toFixed(2)}
-                </span>
+                {product.discPerc > 0 && (
+                  <span className="text-red-500 line-through">
+                    ₹{product.beforeDiscPrice?.toFixed(2)}
+                  </span>
+                )}
                 <span className="text-green-600 font-semibold">
                   ₹{product.salesPrice?.toFixed(2)}
                 </span>
@@ -197,7 +199,11 @@ export const ProductTableRow = React.memo(({ product }) => {
         </td>
         <td className="p-2 w-[120px]">{product.productName}</td>
         <td className="p-2 w-[90px] text-red-500 line-through">
-          ₹{product.beforeDiscPrice?.toFixed(2)}
+        {product.discPerc > 0 &&(
+          <td className="p-2 w-[90px] text-red-500 line-through">
+            ₹{product.beforeDiscPrice?.toFixed(2)}
+          </td>
+        )}
         </td>
         <td className="p-2 w-[90px] text-emerald-600">
           ₹{product.salesPrice?.toFixed(2)}
@@ -276,8 +282,9 @@ export const ProductTableRow = React.memo(({ product }) => {
   );
 });
 
-const Shop = () => {
-  const { searchTerm, products, TAGS, Categories } = useFirebase();
+const Shop = ({isStandardCrackers}) => {
+  const { searchTerm, getSparklerProducts,getMultiBrandProducts, TAGS, Categories,standardCategories,
+        multiBrandCategories } = useFirebase();
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filteredproducts, setFilteredproducts] = useState([]);
   // const [viewMode, setViewMode] = useState('grid');
@@ -291,6 +298,17 @@ const Shop = () => {
   const tagFromURL = searchParams.get("tag");
   const categoryFromURL = searchParams.get("category");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [products,setProducts]=useState([]);
+   useEffect(()=>{
+     const fetchProducts = async () => {
+       const sparklerProducts = isStandardCrackers?await getSparklerProducts():await getMultiBrandProducts();
+       setProducts(sparklerProducts);
+     };
+
+     fetchProducts();
+   }, [isStandardCrackers]);
+
+
 
   const handleViewChange = (mode: "grid" | "list") => {
     setSearchParams({ view: mode });
@@ -552,8 +570,23 @@ const Shop = () => {
                   <div>
                     <h2 className="font-semibold text-lg">Categories</h2>
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mt-2">
-                      {Array.isArray(Categories) &&
-                        Categories.map((category) => (
+                      {Array.isArray(multiBrandCategories)&&!isStandardCrackers &&
+                        multiBrandCategories.map((category) => (
+                          <button
+                            key={category}
+                            onClick={() => toggleCategory(category)}
+                            className={`rounded-xl px-4 py-2 text-sm font-medium shadow-sm transition-colors border 
+                          ${
+                            selectedCategories.includes(category)
+                              ? "bg-emerald-500 text-white border-emerald-500"
+                              : "bg-white text-gray-800 hover:bg-gray-100"
+                          }`}
+                          >
+                            {category}
+                          </button>
+                        ))}
+                        {Array.isArray(standardCategories)&&isStandardCrackers &&
+                        standardCategories.map((category) => (
                           <button
                             key={category}
                             onClick={() => toggleCategory(category)}
