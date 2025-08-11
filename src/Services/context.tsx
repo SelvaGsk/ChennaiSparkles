@@ -863,7 +863,6 @@ async function uploadOrderImage(imageFile, orderId) {
         product.PriceListName === "ONLINE PRICE LIST"
       )
       .map(([id, product]) => ({ id, ...product }));
-    console.log(Products);
     return Products;
   } else {
     console.log("No data found.");
@@ -883,7 +882,6 @@ async function getgiftProducts() {
         product.CategoryName === "COMBO ITEMS ( Multi Brand )"
       )
       .map(([id, product]) => ({ id, ...product }));
-     console.log(sparklerProducts);
     return sparklerProducts;
   } else {
     console.log("No data found.");
@@ -903,7 +901,6 @@ async function getStandardGiftProducts() {
         product.CategoryName === "COMBO ITEMS ( Standard Crackers )"
       )
       .map(([id, product]) => ({ id, ...product }));
-     console.log(sparklerProducts);
     return sparklerProducts;
   } else {
     console.log("No data found.");

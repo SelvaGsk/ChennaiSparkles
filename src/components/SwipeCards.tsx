@@ -249,7 +249,6 @@ export const GiftCardComponent: React.FC<ProductCardProps> = React.memo(({ produ
     if (productImages.length <= 1) return;
     const interval = setInterval(() => {
       setActiveImage((prev) => (prev + 1) % productImages.length);
-      console.log("wer");
     }, 2000);
     return () => clearInterval(interval);
   }, [productImages]);

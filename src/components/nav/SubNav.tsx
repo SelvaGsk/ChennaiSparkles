@@ -73,35 +73,30 @@ const SubNav = () => {
           <Popover>
             <PopoverTrigger asChild>
               <div className="flex items-center gap-2 cursor-pointer group transition-transform duration-300">
-                <p className="flex items-center gap-2 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 text-white px-5 py-2 rounded-full shadow-md font-semibold group-hover:scale-105 transition-all duration-300">
+                <p className="flex items-center gap-2 bg-gradient-to-r from-green-400 via-emerald-500 to-teal-500 text-white px-5 py-2 rounded-full shadow-md font-semibold group-hover:scale-105 transition-all duration-300 animate-bounce">
                   <FaShoppingBag className="text-white text-sm group-hover:rotate-6 transition-transform duration-300" />
-                  Shop
+                  Shop Now
                 </p>
               </div>
             </PopoverTrigger>
             <PopoverContent className="w-40">
-              
-                <div>
-                  <div
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => navigate('/shop/multibrand')}
-                  >
-                    MULTI BRAND CRACKERS
-                  </div>
-                  <div
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => navigate('/shop/standard')}
-                  >
-                    STANDARD CRACKERS
-                  </div>
+              <div>
+                <div
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => navigate('/shop/multibrand')}
+                >
+                  MULTI BRAND CRACKERS
                 </div>
-            
-              
+                <div
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => navigate('/shop/standard')}
+                >
+                  STANDARD CRACKERS
+                </div>
+              </div>
             </PopoverContent>
           </Popover>
 
-
-          
         </div>
         <p className="font-semibold cursor-pointer" onClick={() => navigate('/track-order')}>Track Order</p>
         <p className="font-semibold cursor-pointer" onClick={() => navigate('/Wishlist')}>Wish List</p>
@@ -175,7 +170,7 @@ const SubNav = () => {
 
     {/* Submenu for Shop Now */}
     <DropdownMenuSub>
-      <DropdownMenuSubTrigger>Shop Now</DropdownMenuSubTrigger>
+      <DropdownMenuSubTrigger>Shop</DropdownMenuSubTrigger>
       <DropdownMenuSubContent className="w-48 rounded-md bg-white shadow-lg border p-2 space-y-1">
         <DropdownMenuItem onClick={() => navigate('/shop/multibrand')}>MULTI BRAND CRACKERS</DropdownMenuItem>
         <DropdownMenuItem onClick={() => navigate('/shop/standard')}>STANDARD CRACKERS</DropdownMenuItem>
