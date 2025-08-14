@@ -1,19 +1,38 @@
-//@ts-nocheck
+// @ts-nocheck
 // SocialNavBar.tsx
 import { FaYoutube, FaFacebookF, FaInstagram, FaGooglePlay, FaChevronDown } from "react-icons/fa";
 import { BsWhatsapp } from "react-icons/bs";
 import { useFirebase } from '@/Services/context';
+import { useState, useEffect, useRef } from 'react';
 
-const SocialNavBar = () => {
-
+const SocialNavBar = () => {  
   const { setting } = useFirebase();
-  if (!setting) {
-    return;
-  }
+  if (!setting) return null;
+
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const toggleDropdown = () => {
+    setIsOpen((prev) => !prev);
+  };
+
+  // Optional: Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="w-full bg-purple-100 py-4 px-6 flex flex-wrap justify-center gap-4">
-
+      
       {/* Social Buttons */}
       <SocialButton
         icon={<BsWhatsapp className="text-green-500" />}
@@ -42,23 +61,37 @@ const SocialNavBar = () => {
       />
 
       {/* Store Locator Button with Dropdown */}
-      <div className="relative group">
-        <button className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400">
-          <span className="mr-2">Store Locator</span>
+      <div className="relative" ref={dropdownRef}>
+        <button
+          onClick={toggleDropdown}
+          className="flex items-center bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400"
+        >
+          <span className="mr-2">Chennai Store Locations</span>
           <FaChevronDown />
         </button>
 
-        {/* Dropdown Menu */}
-        <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out z-50">
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Adayar Signal</a>
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">ECR Kottivakkam (Near University Colony)</a>
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">ECR Neelangarai (Near Police Station)</a>
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Navalur (Near Vivira Mall)</a>
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Thalambur (Near Greenwood City)</a>
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Padur (Near Hindustan College)</a>
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Kelambakkam (Near SHELL PETROL BUNK)</a>
-          <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100">Sholinganallur (Near Naturals Saloon ELCOT Avenue)</a>
-        </div>
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-72 bg-white border rounded-md shadow-lg z-50">
+            {[
+              "Adayar Signal",
+              "ECR Kottivakkam (Near University Colony)",
+              "ECR Neelangarai (Near Police Station)",
+              "Navalur (Near Vivira Mall)",
+              "Thalambur (Near Greenwood City)",
+              "Padur (Near Hindustan College)",
+              "Kelambakkam (Near SHELL PETROL BUNK)",
+              "Sholinganallur (Near Naturals Saloon ELCOT Avenue)",
+            ].map((location, index) => (
+              <a
+                key={index}
+                href="#"
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                {location}
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

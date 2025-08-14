@@ -284,10 +284,16 @@ export const AddProductToShop = () => {
         return;
       }
       const ProductdbId = Date.now().toString();
+
       const finalData = {
         ...formData,
         productImageURL: imageUrl,
         id: ProductdbId,
+        uomid: String(formData.uom),
+        productCode: Number(formData.productId),  
+        productGroupId: String(formData.productGroupCode),
+        PriceListID: formData.PriceListName,
+        companyID: 'CSC',
       };
 
       const productRef = dbRef(database, `CSC/Products/${ProductdbId}`);
@@ -388,34 +394,42 @@ export const AddProductToShop = () => {
             />
           </div> */}
           <div>
-  <label>Category Name</label>
-  <select
-    className="w-full border px-2 py-1 rounded"
-    value={formData.CategoryName}
-    onChange={(e) => {
-      const selectedName = e.target.value;
-      const selectedGroup = Object.values(generalMaster?.["Product Group"] || {}).find(
-        (group) => group.generalName === selectedName
-      );
+            <label>Category Name</label>
+            <select
+              className="w-full border px-2 py-1 rounded"
+              value={formData.CategoryName}
+              onChange={(e) => {
+                const selectedName = e.target.value;
+                const selectedGroup = Object.values(generalMaster?.["Product Group"] || {}).find(
+                  (group) => group.generalName === selectedName
+                );
 
-      if (selectedGroup) {
-        handleChange("CategoryName", selectedGroup.generalName);
-        handleChange("productGroupCode", selectedGroup.id); // or generalCode if you prefer
-      }
-    }}
-  >
-    <option value="">Select Category</option>
-    {generalMaster?.["Product Group"] &&
-      Object.values(generalMaster["Product Group"]).map((group) => (
-        <option key={group.id} value={group.generalName}>
-          {group.generalName}
-        </option>
-      ))}
-  </select>
-</div>
-
-
-
+                if (selectedGroup) {
+                  handleChange("CategoryName", selectedGroup.generalName);
+                  handleChange("productGroupCode", selectedGroup.id); // or generalCode if you prefer
+                }
+              }}
+            >
+            <option value="">Select Category</option>
+              {generalMaster?.["Product Group"] &&
+                Object.values(generalMaster["Product Group"]).map((group) => (
+                  <option key={group.id} value={group.generalName}>
+                    {group.generalName}
+                  </option>
+                ))}
+            </select>
+          </div>
+          <div>
+            <label>Price List</label>
+            <select className="w-full border px-2 py-1 rounded"
+              value={formData.PriceListName}  // Bind selected value to formData
+              onChange={(e) => setFormData({ ...formData, PriceListName: e.target.value })} // Update state on change
+            >
+              <option value="">Select Pricelist</option>  {/* Default empty option */}
+              <option value="ONLINE PRICE LIST">ONLINE PRICE LIST</option>
+              <option value="STANDARD CRACKERS">STANDARD CRACKERS</option>
+            </select>
+          </div>
           <div>
             <label>Before Discount Price</label>
             <Input
@@ -773,6 +787,11 @@ export const EditProduct=()=>{
       const finalData = {
         ...selectedProduct,
         productImageURL: imageUrl?imageUrl:selectedProduct.productImageURL,
+        companyID: 'CSC',
+        uomid: String(selectedProduct.uom),
+        productCode: Number(selectedProduct.productId || ''), // assuming `productID` is a key in formData
+        productGroupId: String(selectedProduct.productGroupCode),
+        PriceListID: selectedProduct.PriceListName,
       };
      const productRef = dbRef(database, `CSC/Products/${selectedProduct.id}`);
      await set(productRef, finalData);

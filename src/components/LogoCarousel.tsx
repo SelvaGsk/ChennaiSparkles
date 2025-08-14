@@ -11,8 +11,6 @@ const logos =[
   '/brandlogos/sparkle.jpg',
   '/brandlogos/standered logo 2  copy.png',
   '/brandlogos/starvell.png'
-
-
 ]
 
 const duplicatedLogos = [...logos, ...logos]; // for infinite scroll

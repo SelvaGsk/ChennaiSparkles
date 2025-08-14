@@ -188,7 +188,7 @@ const SubNav = () => {
       <DropdownMenuSubTrigger>Download Price List</DropdownMenuSubTrigger>
         <DropdownMenuSubContent className="w-48 rounded-md bg-white shadow-lg border p-2 space-y-1">
           <DropdownMenuItem onClick={downloadPriceList}>MULTI BRAND CRACKERS</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate('/shop/standard')}>STANDARD CRACKERS</DropdownMenuItem>
+          <DropdownMenuItem onClick={downloadStandardPriceList}>STANDARD CRACKERS</DropdownMenuItem>
         </DropdownMenuSubContent>
     </DropdownMenuSub>
   </DropdownMenuContent>

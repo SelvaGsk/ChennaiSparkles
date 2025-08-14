@@ -288,7 +288,7 @@ const Shop = ({isStandardCrackers}) => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [filteredproducts, setFilteredproducts] = useState([]);
   // const [viewMode, setViewMode] = useState('grid');
-  const [priceRange, setPriceRange] = useState([0, 5000]);
+  const [priceRange, setPriceRange] = useState([0, 15000]);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [sortOption, setSortOption] = useState<string>("DEFAULT"); // NEW
@@ -389,6 +389,7 @@ const Shop = ({isStandardCrackers}) => {
         filtered.sort((a, b) => (a.sortingorder ?? 0) - (b.sortingorder ?? 0));
     }
 
+    console.log(filtered);
     setFilteredproducts(filtered);
     setCurrentPage(1);
   }, [
@@ -529,7 +530,7 @@ const Shop = ({isStandardCrackers}) => {
                     <Slider
                       defaultValue={priceRange}
                       min={0}
-                      max={5000}
+                      max={15000}
                       step={10}
                       onValueChange={setPriceRange}
                     />

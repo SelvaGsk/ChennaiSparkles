@@ -23,6 +23,7 @@ import { getFunctions, httpsCallable } from "firebase/functions";
 import toast from "react-hot-toast";
 import { generateOrderPdf } from "@/components/utility/generateOrderPDF";
 import { storage } from "@/Services/Firebase.config";
+dayjs.extend(customParseFormat);
 
 const Admin = () => {
   const [orders, setOrders] = useState([]);
@@ -73,6 +74,52 @@ const Admin = () => {
   }, [toggle]);
 
   useEffect(() => {
+    const CustomerOrders = async () => {
+      const data = await getCustomerOrders();
+      const s=await getBannerUrls();
+      setLocalSetting(s);
+      if (!data) return;
+
+      const flatOrders = [];
+      for (const userId in data) {
+        for (const orderId in data[userId]) {
+          const order = data[userId][orderId];
+
+           // Skip deleted orders
+        if (order.delete) continue;
+
+          flatOrders.push({
+            ...order,
+            userId,
+            orderId,
+            totalProducts: order.billProductList?.length || 0,
+          });
+        }
+      }
+
+      console.log(flatOrders);
+      const format = "DD/MM/YYYY HH:mm:ss";
+
+const sortOrderindb = flatOrders.sort((a, b) => {
+  const dateA = dayjs(a.date, format, true);
+  const dateB = dayjs(b.date, format, true);
+
+  if (!dateA.isValid() && !dateB.isValid()) return 0;
+  if (!dateA.isValid()) return 1;
+  if (!dateB.isValid()) return -1;
+
+  // Newest first
+  return dateB.valueOf() - dateA.valueOf();
+});
+
+      setOrders(sortOrderindb);
+      setFilteredOrders(sortOrderindb);
+    };
+
+    CustomerOrders();
+  }, [toggle]);
+
+  useEffect(() => {
     const term = searchTerm.toLowerCase();
     const filtered = orders
       .filter(
@@ -97,26 +144,8 @@ const Admin = () => {
           (delivered && s.delivered === "true")
         );
       })
-      .sort((a, b) => {
-        const format = "DD/MM/YYYY HH:mm:ss";
       
-        const dateA = dayjs(a.date, format, true); // true = strict parsing
-        const dateB = dayjs(b.date, format, true);
-      
-        if (!dateA.isValid() && !dateB.isValid()) return 0;
-        if (!dateA.isValid()) return 1;
-        if (!dateB.isValid()) return -1;
-      
-        // Sort by date DESC
-        if (dateA.isAfter(dateB)) return -1;
-        if (dateA.isBefore(dateB)) return 1;
-      
-        // Fallback to name ASC
-        const nameA = a.custName?.toLowerCase() || "";
-        const nameB = b.custName?.toLowerCase() || "";
-        return nameA.localeCompare(nameB);
-      });
-
+      // const sort=filtered
     setFilteredOrders(filtered);
   }, [searchTerm, orders, statusFilters]);
 

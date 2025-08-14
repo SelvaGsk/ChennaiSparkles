@@ -33,7 +33,7 @@ const Hero = () => {
           content="Get the best deals on crackers directly from Sivakasi – India's Crackers City. Safe, certified, and budget-friendly fireworks."
         />
         <meta property="og:image" content="/meta/home-banner.jpg" />
-        <meta property="og:url" content="https://chennaisparklecrackers.in/" />
+        <meta property="og:url" content="https://chennaisparklecrackers.com/" />
       </Helmet>
       <div className="flex flex-col min-h-screen">
         <section className="flex-1">

@@ -624,13 +624,13 @@ const CheckOut = () => {
               <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={() => {
-                  console.log(isUpi);
-                  if(isUpi)
-                  {  console.log(upiimage);
-                    if(!upiimage){
-                    toast.error("Please Uplode Upi Sceenshot");
-                    return;}
-                  }
+                  // console.log(isUpi);
+                  // if(isUpi)
+                  // {  console.log(upiimage);
+                  //   if(!upiimage){
+                  //   toast.error("Please Uplode Upi Sceenshot");
+                  //   return;}
+                  // }
                   placeOrder(checkoutItems, packingChargeAmount, useExistingAddress, formData,totalAmount,isUpi,upiimage);
                   setShowDialog(false);
                 }}

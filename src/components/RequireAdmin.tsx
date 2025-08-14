@@ -47,10 +47,6 @@ const RequireAdmin = ({ children }: { children: React.ReactNode }) => {
         return;
       }
 
-      console.log(setting);
-      console.log(adminEmails);
-      console.log(user.email);
-
       if (!user.email || !adminEmails.includes(user.email.toLowerCase())) {
         navigate("/unauthorized");
       }

@@ -232,14 +232,14 @@ useEffect(() => {
         if (!item?.generalName) return;
 
         if (
-          item.priceListName === "STANDARD CRACKERS" ||
+          item.priceListName === "STANDARD CRACKERS" || item.PriceListName === "STANDARD CRACKERS" ||
           item.priceListName === ""
         ) {
           standard.push(item.generalName);
         }
 
         if (
-          item.priceListName === "ONLINE PRICE LIST" ||
+          item.priceListName === "ONLINE PRICE LIST" || item.PriceListName === "ONLINE PRICE LIST" ||
           item.priceListName === ""
         ) {
           multiBrand.push(item.generalName);
@@ -576,10 +576,10 @@ async function uploadOrderImage(imageFile, orderId) {
        const dbUser = await getUser();
       const orderId = Date.now().toString();
        let orderurl;
-    if(isupi)
-    {
-       orderurl=await uploadOrderImage(upiimage,orderId);
-    }
+      if (isupi && upiimage)
+      {
+        orderurl=await uploadOrderImage(upiimage,orderId);
+      }
       if (!user || !user.uid) {
         if(!formData.phone)
         {
@@ -612,7 +612,7 @@ async function uploadOrderImage(imageFile, orderId) {
 }
 ,
         date: formattedDate,
- upiimage:isupi?orderurl:"",
+        upiimage:isupi && orderurl ?orderurl:"",
         deliveryAddress: useExistingAddress
           ? dbUser?.address
           : formData.addressLine1,
@@ -639,11 +639,11 @@ async function uploadOrderImage(imageFile, orderId) {
       };
 
       await set(guestorderRef, orderData);
-     toast.success("✅ Order placed successfully!");
-     localStorage.removeItem('guestCart');
-     setCartItems({});
-        return;
-      }
+      toast.success("✅ Order placed successfully!");
+      localStorage.removeItem('guestCart');
+      setCartItems({});
+          return;
+        }
      
 
     const orderRef = ref(
@@ -684,7 +684,7 @@ async function uploadOrderImage(imageFile, orderId) {
         free: 0,
         import: false,
         lrNumber: "",
-        upiimage:isupi?orderurl:"",
+        upiimage:isupi && orderurl?orderurl:"",        
         netAmount: 0,
         packingCharge: packingChargeAmount,
         paymentMethodCode: 0,
@@ -731,14 +731,14 @@ async function uploadOrderImage(imageFile, orderId) {
       const totalItems = selectedOrder?.billProductList?.length || 0;
       const finalAmount = selectedOrder?.totalAmount || 0;
       const companyName = setting[0]?.CompanyName;
-      const trackingLink = `https://chennaisparklecrackers.in/track-order`;
+      const trackingLink = `https://chennaisparklecrackers.com/track-order`;
 
       // Get sanitized numbers
       const customerPhone = sanitizePhone(
         selectedOrder.customer?.mobileNo || ""
       );
       const officePhone = sanitizePhone(setting[0]?.CellNO || "");
-      const ownerPhone = "+919952162941";
+      const ownerPhone = "+917200194643";
       const ContactNumber = `${officePhone} / ${setting[0]?.WhatsAppNumber || ""}`;
 
       // Array of phone numbers to send message to
@@ -749,7 +749,7 @@ async function uploadOrderImage(imageFile, orderId) {
         try {
           const whatsappResult = await sendMessage({
             phone,
-            templateId: "HXdc888fa18833403460fdee5e64d13ca1",
+            templateId: "HX593f5f6da6ee9264229d35a3177024c3",
             templateParams: {
               1: selectedOrder.custName, // Customer name
               2: selectedOrder.orderId, // Order ID
@@ -788,6 +788,7 @@ async function uploadOrderImage(imageFile, orderId) {
     } finally {
       setPdfLoading(false);
       setorderLoading(false);
+      navigate("/");
 
     }
   };
@@ -839,7 +840,7 @@ async function uploadOrderImage(imageFile, orderId) {
     const sparklerProducts = Object.entries(data)
       .filter(([_, product]) =>
        
-        product.PriceListName === "STANDARD CRACKERS"
+        product.PriceListName === "STANDARD CRACKERS" || product.priceListName === "STANDARD CRACKERS"
       )
       .map(([id, product]) => ({ id, ...product }));
      console.log(sparklerProducts);
@@ -860,7 +861,7 @@ async function uploadOrderImage(imageFile, orderId) {
     const Products = Object.entries(data)
       .filter(([_, product]) =>
        
-        product.PriceListName === "ONLINE PRICE LIST"
+        product.PriceListName === "ONLINE PRICE LIST" || product.priceListName === "ONLINE PRICE LIST"
       )
       .map(([id, product]) => ({ id, ...product }));
     return Products;
